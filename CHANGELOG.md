@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded `nodemailer` to `^9.0.1`. [#1356](https://github.com/sourcebot-dev/sourcebot/pull/1356)
 - Upgraded `@opentelemetry/core` to `^2.8.0`. [#1413](https://github.com/sourcebot-dev/sourcebot/pull/1413)
 - [EE] Fixed connector setup dialogs to add scrolling when connector setup content goes out of view.
+- [EE] Fixed Ask connector MCP tools with provider-invalid names failing to run by sanitizing model-facing tool names while preserving raw names in the UI.
 
 ## [5.0.4] - 2026-06-18
 
