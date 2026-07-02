@@ -338,6 +338,12 @@ export const createMessageStream = async ({
                         data: { sanitizedName, faviconUrl },
                     });
                 },
+                onMcpToolDiscovered: (modelToolName, rawToolName) => {
+                    writer.write({
+                        type: 'data-mcp-tool',
+                        data: { modelToolName, rawToolName },
+                    });
+                },
                 onMcpServerFailed: (serverName) => {
                     writer.write({
                         type: 'data-mcp-failed-server',
@@ -470,6 +476,7 @@ interface AgentOptions {
     inputSources: Source[];
     onWriteSource: (source: Source) => void;
     onMcpServerDiscovered: (sanitizedName: string, faviconUrl: string) => void;
+    onMcpToolDiscovered: (modelToolName: string, rawToolName: string) => void;
     onMcpServerFailed: (serverName: string) => void;
     traceId: string;
     chatId: string;
@@ -489,6 +496,7 @@ const createAgentStream = async ({
     disabledMcpServerIds,
     onWriteSource,
     onMcpServerDiscovered,
+    onMcpToolDiscovered,
     onMcpServerFailed,
     traceId,
     chatId,
@@ -525,7 +533,7 @@ const createAgentStream = async ({
         }))
     ).filter((source) => source !== undefined);
 
-    let mcpToolSetsObj: McpToolsResult = { tools: {}, failedServers: [], serverFaviconUrls: {}, cleanup: async () => {} };
+    let mcpToolSetsObj: McpToolsResult = { tools: {}, failedServers: [], serverFaviconUrls: {}, toolDisplayNames: {}, cleanup: async () => {} };
     if (userId && orgId && await hasEntitlement('ask') && disabledMcpServerIds !== undefined) {
         try {
             const allMcpClients = await getConnectedMcpClients(prisma, userId, orgId);
@@ -538,6 +546,9 @@ const createAgentStream = async ({
 
             for (const [sanitizedName, faviconUrl] of Object.entries(mcpToolSetsObj.serverFaviconUrls)) {
                 onMcpServerDiscovered(sanitizedName, faviconUrl);
+            }
+            for (const [modelToolName, rawToolName] of Object.entries(mcpToolSetsObj.toolDisplayNames)) {
+                onMcpToolDiscovered(modelToolName, rawToolName);
             }
 
             if (mcpClients.length > 0) {
